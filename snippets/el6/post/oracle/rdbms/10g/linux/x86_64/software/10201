@@ -1,0 +1,116 @@
+# el5/post/oracle/rdbms/10g/linux/x86_64/software/10201
+#
+# Install Oracle 10.2.0.1 RDBMS Software
+# 
+# Requires:
+# el5/post/oracle/common/10g/linux/x86_64/common
+
+# Create the directory layout, grab the install media and unpack
+mkdir -p /home/oracle/rdbms/10g/linux/x86_64/{media,response,install}
+wget -q http://buildhost/media/oracle/rdbms/10g/linux/x86_64/10201_database_linux_x86_64.cpio.gz -P /home/oracle/rdbms/10g/linux/x86_64/media
+cd /home/oracle/rdbms/10g/linux/x86_64/install
+gunzip -c /home/oracle/rdbms/10g/linux/x86_64/media/10201_database_linux_x86_64.cpio.gz | cpio -idm
+
+# Create the response file
+cat > /home/oracle/rdbms/10g/linux/x86_64/response/10201_rdbms.rsp <<EOF
+RESPONSEFILE_VERSION=2.2.1.0.0
+UNIX_GROUP_NAME="oinstall"
+FROM_LOCATION="/home/oracle/rdbms/10g/linux/x86_64/install/database/stage/products.xml"
+FROM_LOCATION_CD_LABEL=<Value Unspecified>
+ORACLE_HOME="/u01/app/oracle/product/10.2.0/db_1"
+ORACLE_HOME_NAME="oracle10g_db1"
+SHOW_WELCOME_PAGE=true
+SHOW_CUSTOM_TREE_PAGE=true
+SHOW_COMPONENT_LOCATIONS_PAGE=true
+SHOW_SUMMARY_PAGE=true
+SHOW_INSTALL_PROGRESS_PAGE=true
+SHOW_REQUIRED_CONFIG_TOOL_PAGE=true
+SHOW_CONFIG_TOOL_PAGE=true
+SHOW_RELEASE_NOTES=true
+SHOW_ROOTSH_CONFIRMATION=true
+SHOW_END_SESSION_PAGE=true
+SHOW_EXIT_CONFIRMATION=true
+NEXT_SESSION=false
+NEXT_SESSION_ON_FAIL=true
+NEXT_SESSION_RESPONSE=<Value Unspecified>
+DEINSTALL_LIST={"oracle.server","10.2.0.1.0"}
+SHOW_DEINSTALL_CONFIRMATION=true
+SHOW_DEINSTALL_PROGRESS=true
+CLUSTER_NODES={}
+ACCEPT_LICENSE_AGREEMENT=false
+TOPLEVEL_COMPONENT={"oracle.server","10.2.0.1.0"}
+SHOW_SPLASH_SCREEN=true
+SELECTED_LANGUAGES={"en_GB","en"}
+COMPONENT_LANGUAGES={"en_GB","en"}
+INSTALL_TYPE="Enterprise Edition"
+sl_superAdminPasswds=<Value Unspecified>
+sl_dlgASMCfgSelectableDisks={}
+s_superAdminSamePasswd=<Value Unspecified>
+s_globalDBName="orcl"
+s_dlgASMCfgRedundancyValue="2 (Norm)"
+s_dlgASMCfgNewDisksSize="0"
+s_dlgASMCfgExistingFreeSpace="0"
+s_dlgASMCfgDiskGroupName="DATA"
+s_dlgASMCfgDiskDiscoveryString=""
+s_dlgASMCfgAdditionalSpaceNeeded=" MB"
+s_dbSelectedUsesASM=""
+s_dbSIDSelectedForUpgrade=""
+s_dbRetChar=""
+s_dbOHSelectedForUpgrade=""
+s_ASMSYSPassword=<Value Unspecified>
+n_performUpgrade=0
+n_dlgASMCfgRedundancySelected=2
+n_dbType=1
+n_dbSelection=0
+b_useSamePassword=false
+b_useFileSystemForRecovery=true
+b_receiveEmailNotification=false
+b_loadExampleSchemas=false
+b_enableAutoBackup=false
+b_dlgASMShowCandidateDisks=true
+b_centrallyManageASMInstance=true
+sl_dlgASMDskGrpSelectedGroup={" "," "," "," "}
+s_dlgRBOUsername=""
+s_dlgEMCentralAgentSelected="No Agents Found"
+b_useDBControl=true
+s_superAdminSamePasswdAgain=<Value Unspecified>
+s_dlgEMSMTPServer=""
+s_dlgEMEmailAddress=""
+s_dlgRBORecoveryLocation="/u01/app/oracle/product/10.2.0/db_1/flash_recovery_area/"
+n_upgradeDB=1
+n_configurationOption=3
+sl_upgradableSIDBInstances={}
+n_upgradeASM=0
+sl_dlgASMCfgDiskSelections={}
+s_ASMSYSPasswordAgain=<Value Unspecified>
+n_dbStorageType=0
+s_rawDeviceMapFileLocation=""
+sl_upgradableRACDBInstances={}
+s_dlgRBOPassword=<Value Unspecified>
+b_stateOfUpgradeDBCheckbox=false
+s_dbSid="orcl"
+b_dbSelectedUsesASM=false
+sl_superAdminPasswdsAgain=<Value Unspecified>
+s_mountPoint="/u01/app/oracle/product/10.2.0/db_1/oradata/"
+b_stateOfUpgradeASMCheckbox=false
+oracle.assistants.server:OPTIONAL_CONFIG_TOOLS="{}"
+oracle.has.common:OPTIONAL_CONFIG_TOOLS="{}"
+oracle.network.client:OPTIONAL_CONFIG_TOOLS="{}"
+oracle.sqlplus.isqlplus:OPTIONAL_CONFIG_TOOLS="{}"
+oracle.sysman.console.db:OPTIONAL_CONFIG_TOOLS="{}"
+varSelect=1
+s_nameForOPERGrp="dba"
+s_nameForDBAGrp="dba"
+EOF
+
+# Change ownership and then run the OUI silently to install the product
+chown -R oracle:oinstall /home/oracle/rdbms
+su - oracle -c "/home/oracle/rdbms/10g/linux/x86_64/install/database/runInstaller -silent -responseFile /home/oracle/rdbms/10g/linux/x86_64/response/10201_rdbms.rsp -waitforcompletion"
+
+/u01/app/oracle/product/10.2.0/db_1/root.sh -silent
+
+# Create a default listener silently
+su - oracle -c "ORACLE_HOME=/u01/app/oracle/product/10.2.0/db_1 /u01/app/oracle/product/10.2.0/db_1/bin/netca /silent /responseFile /u01/app/oracle/product/10.2.0/db_1/network/install/netca_typ.rsp"
+
+# OPTIONAL: clean up
+# rm -rf /home/oracle/rdbms/10g/linux/x86_64/

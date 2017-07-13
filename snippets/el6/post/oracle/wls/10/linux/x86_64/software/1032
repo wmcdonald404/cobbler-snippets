@@ -1,0 +1,37 @@
+# el5/post/oracle/wls/10/linux/x86_64/software/1032
+#
+# Install Oracle WebLogic 10.3 SP2
+# 
+# Requires:
+# el5/post/yum/[i386/x86_64]/base_repo
+# el5/post/ssh/noarch/ssh_keys
+# el5/post/oracle/wls/common/linux/noarch/base
+# el5/post/sun/java/16/linux/x86_64/16017_jdk
+
+# Create the directory layout, grab the install media and unpack
+mkdir -p /home/oracle/wls/10/linux/x86_64/{media,response,install}
+wget -q http://buildhost/media/oracle/wls/10/linux/x86_64/wls1032_generic.jar -P  /home/oracle/wls/10/linux/x86_64/media
+
+# Create the response file
+#
+# http://download.oracle.com/docs/cd/E13179_01/common/docs103/install/silent.html
+
+cat > /home/oracle/wls/10/linux/x86_64/response/1032_wls.xml <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<bea-installer> 
+  <input-fields>
+      <data-value name="BEAHOME" value="/opt/wls" />
+      <data-value name="WLS_INSTALL_DIR" value="/opt/wls/weblogic1032" />
+      <data-value name="COMPONENT_PATHS" value="WebLogic Server/Core Application Server|WebLogic Server/Administration Console|WebLogic Server/Configuration Wizard and Upgrade Framework|WebLogic Server/Web 2.0 HTTP Pub-Sub Server|WebLogic Server/WebLogic JDBC Drivers|WebLogic Server/Third Party JDBC Drivers|WebLogic Server/WebLogic Server Clients|WebLogic Server/WebLogic Web Server Plugins|WebLogic Server/UDDI and Xquery Support" />
+      <data-value name="USE_EXTERNAL_ECLIPSE" value="false" />
+      <data-value name="LOCAL_JVMS" value="/opt/jdk160_17" />
+   </input-fields> 
+</bea-installer>
+EOF
+
+# Change ownership and then run the OUI silently to install the product
+chown -R weblogic:weblogic /opt/wls /home/oracle/wls
+su - weblogic -c "/opt/jdk160_17/bin/java -Xmx256m -jar /home/oracle/wls/10/linux/x86_64/media/wls1032_generic.jar -mode=silent -silent_xml=/home/oracle/wls/10/linux/x86_64/response/1032_wls.xml -log=/home/oracle/wls/10/linux/x86_64/install/1032_wls.log"
+
+# OPTIONAL: clean up
+# rm -rf /home/oracle/wls

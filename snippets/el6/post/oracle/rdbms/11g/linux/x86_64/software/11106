@@ -1,0 +1,125 @@
+# el5/post/oracle/rdbms/11g/linux/x86_64/software/11106
+#
+# Install Oracle 11.1.0.6 RDBMS Software
+# 
+# Requires:
+# el5/post/oracle/common/11g/linux/x86_64/common
+
+# Create the directory layout, grab the install media and unpack
+mkdir -p /home/oracle/rdbms/11g/linux/x86_64/{media,response,install}
+wget -q http://buildhost/media/oracle/rdbms/11g/linux/x86_64/linux.x64_11gR1_database_1013.zip -P /home/oracle/rdbms/11g/linux/x86_64/media
+unzip -q /home/oracle/rdbms/11g/linux/x86_64/media/linux.x64_11gR1_database_1013.zip -d /home/oracle/rdbms/11g/linux/x86_64/install
+
+# Create the response file
+cat > /home/oracle/rdbms/11g/linux/x86_64/response/11106_rdbms.rsp <<EOF
+RESPONSEFILE_VERSION=2.2.1.0.0
+UNIX_GROUP_NAME=<Value Unspecified>
+FROM_LOCATION="/home/oracle/rdbms/11g/linux/x86_64/install/database/stage/products.xml"
+NEXT_SESSION_RESPONSE=<Value Unspecified>
+ORACLE_BASE="/u01/app/oracle"
+ORACLE_HOME="/u01/app/oracle/product/11.1.0/db_1"
+ORACLE_HOME_NAME="oracle11g_db1"
+TOPLEVEL_COMPONENT={"oracle.server","11.1.0.6.0"}
+DEINSTALL_LIST={"oracle.server","11.1.0.6.0"}
+SHOW_SPLASH_SCREEN=false
+SHOW_WELCOME_PAGE=false
+SHOW_NODE_SELECTION_PAGE=false
+SHOW_SUMMARY_PAGE=false
+SHOW_INSTALL_PROGRESS_PAGE=false
+SHOW_CONFIG_TOOL_PAGE=false
+SHOW_XML_PREREQ_PAGE=false
+SHOW_ROOTSH_CONFIRMATION=true
+SHOW_END_SESSION_PAGE=false
+SHOW_EXIT_CONFIRMATION=false
+NEXT_SESSION=false
+NEXT_SESSION_ON_FAIL=false
+SHOW_DEINSTALL_CONFIRMATION=false
+SHOW_DEINSTALL_PROGRESS=false
+RESTART_SYSTEM=<Value Unspecified>
+RESTART_REMOTE_SYSTEM=<Value Unspecified>
+REMOVE_HOMES=<Value Unspecified>
+ORACLE_HOSTNAME=<Value Unspecified>
+SHOW_END_OF_INSTALL_MSGS=false
+CLUSTER_NODES=<Value Unspecified>
+COMPONENT_LANGUAGES={"en_GB"}
+INSTALL_TYPE="EE"
+s_nameForDBAGrp="dba"
+s_nameForOPERGrp="dba"
+s_nameForASMGrp="dba"
+n_configurationOption=3
+s_ASMSYSPassword=""
+s_ASMSYSPasswordAgain=""
+n_dbType=<Value Required>
+oracle.assistants.server:s_responseFileName=<Value Unspecified>
+s_globalDBName=<Value Required>
+s_dbSid=<Value Required>
+n_selectedMemoryForOracle=<Value Required>
+n_memoryOption=<Value Required>
+s_dbRetChar="AL32UTF8"
+b_disableSecureConfig=false
+b_loadExampleSchemas=false
+b_useDBControl=true
+b_receiveEmailNotification=false
+s_dlgEMSMTPServer=<Value Unspecified>
+s_dlgEMEmailAddress=<Value Unspecified>
+s_dlgEMCentralAgentSelected=<Value Unspecified>
+n_dbStorageType=<Value Required>
+s_mountPoint=<Value Unspecified>
+b_enableAutoBackup=false
+b_useFileSystemForRecovery=true
+s_dlgRBORecoveryLocation=<Value Unspecified>
+s_dlgRBOUsername=<Value Unspecified>
+s_dlgRBOPassword=<Value Unspecified>
+s_dlgASMCfgDiskGroupName="DATA"
+s_dlgASMCfgDiskDiscoveryString=<Value Unspecified>
+n_dlgASMCfgRedundancySelected=<Value Unspecified>
+sl_dlgASMCfgSelectableDisks=<Value Unspecified>
+sl_dlgASMCfgDiskSelections=<Value Unspecified>
+sl_dlgASMDskGrpSelectedGroup={" "," "," "," "}
+b_centrallyManageASMInstance=true
+b_useSamePassword=true
+s_superAdminSamePasswd=<Value Required>
+s_superAdminSamePasswdAgain=<Value Required>
+sl_superAdminPasswds=<Value Unspecified>
+sl_superAdminPasswdsAgain=<Value Unspecified>
+b_acceptLicense=true
+b_useRegistration=false
+s_csiNumber=<Value Unspecified>
+s_metaLink=<Value Unspecified>
+s_countryName=<Value Unspecified>
+b_proxyused=<Value Unspecified>
+s_serverName=<Value Unspecified>
+s_portNumber=<Value Unspecified>
+s_userName=<Value Unspecified>
+s_proxyPassword=<Value Unspecified>
+n_performUpgrade=0
+n_upgradeDB=0
+s_dbOHSelectedForUpgrade=""
+s_dbSIDSelectedForUpgrade=""
+n_upgradeASM=0
+s_dbSelectedUsesASM="no"
+sl_upgradableSIDBInstances={}
+sl_upgradableRACDBInstances={}
+n_dbSelection=0
+b_stateOfUpgradeASMCheckbox=false
+b_stateOfUpgradeDBCheckbox=false
+b_oneClick=false
+s_dlgASMCfgRedundancyValue=""
+s_dlgASMCfgExistingFreeSpace="0"
+s_dlgASMCfgNewDisksSize=""
+s_dlgASMCfgAdditionalSpaceNeeded="0 MB"
+n_configTabSelected=0
+n_dbCharSetOption=3
+EOF
+
+
+# Change ownership and then run the OUI silently to install the product
+chown -R oracle:oinstall /home/oracle/rdbms
+su - oracle -c "/home/oracle/rdbms/11g/linux/x86_64/install/database/runInstaller -silent -responseFile /home/oracle/rdbms/11g/linux/x86_64/response/11106_rdbms.rsp -waitforcompletion"
+/u01/app/oracle/product/11.1.0/db_1/root.sh -silent
+
+# Create a default listener silently
+su - oracle -c "ORACLE_HOME=/u01/app/oracle/product/11.1.0/db_1 /u01/app/oracle/product/11.1.0/db_1/bin/netca /silent /responseFile /u01/app/oracle/product/11.1.0/db_1/network/install/netca_typ.rsp"
+
+# OPTIONAL: clean up
+# rm -rf /home/oracle/db 

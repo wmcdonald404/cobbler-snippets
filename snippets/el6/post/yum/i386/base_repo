@@ -1,0 +1,12 @@
+rm -f /etc/yum.repos.d/CentOS-*
+cat > /etc/yum.repos.d/centos54-i386-base.repo <<EOF
+#
+# CentOS 5.4 Base Yum Repository
+#
+[centos54-i386-base]
+name=CentOS Enterprise Linux \$releasever - \$basearch - Base
+baseurl=http://buildhost/cobbler/ks_mirror/centos54-i386
+enabled=1
+gpgcheck=1
+gpgkey=http://buildhost/cobbler/ks_mirror/centos54-i386/RPM-GPG-KEY-CentOS-5
+EOF

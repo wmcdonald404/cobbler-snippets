@@ -1,0 +1,33 @@
+# el5/post/ibm/upd/7/linux/x86_64/70011
+# Install the IBM WebSphere Update Installer 7.0.0.11
+# Requires:
+# el5/post/ibm/was/common/linux/noarch/base
+# el5/post/ibm/was/7/linux/x86_64/700
+
+# Create the directory layout, grab the install media and unpack
+mkdir -p /home/ibm/upd/7/linux/x86_64/{media,response,install}
+wget -q http://buildhost/media/ibm/was/7/linux/x86_64/7.0.0.11-WS-UPDI-LinuxAMD64.tar.gz -P  /home/ibm/upd/7/linux/x86_64/media
+tar -C /home/ibm/upd/7/linux/x86_64/install -xzf /home/ibm/upd/7/linux/x86_64/media/7.0.0.11-WS-UPDI-LinuxAMD64.tar.gz
+
+# Create the response file
+cat > /home/ibm/upd/7/linux/x86_64/response/70011_upd.rsp <<EOF
+-OPT silentInstallLicenseAcceptance="true"
+-OPT disableOSPrereqChecking="true"
+-OPT disableEarlyPrereqChecking="true"
+-OPT installLocation="/opt/ibm/WebSphere/UpdateInstaller"
+-OPT traceLevel=INFO
+-OPT skipStartMenu=true
+EOF
+
+# Temporarily switch redhat-release
+/bin/cp -f /etc/redhat-release /etc/redhat-release.centos54
+cat > /etc/redhat-release.rhel54 <<EOF
+Red Hat Enterprise Linux Server release 5.4 (Tikanga)
+EOF
+/bin/cp -f /etc/redhat-release.rhel54 /etc/redhat-release 
+
+# Install silently
+/home/ibm/upd/7/linux/x86_64/install/UpdateInstaller/install -silent -options /home/ibm/upd/7/linux/x86_64/response/70011_upd.rsp
+
+# Switch redhat-release back
+/bin/cp -f /etc/redhat-release.centos54 /etc/redhat-release 

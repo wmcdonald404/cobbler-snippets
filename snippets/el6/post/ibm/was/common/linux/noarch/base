@@ -1,0 +1,30 @@
+# el5/post/ibm/was/common/linux/noarch/base
+# Set the base prerequisites for IBM WebSphere installation
+# Requires:
+# el5/post/yum/[i386/x86_64]/base_repo
+# el5/post/ssh/noarch/ssh_keys
+
+# Install wget so we can grab the install files
+yum -y install wget
+
+# Create a WebSphere user
+useradd websphere
+echo websphere | passwd --stdin websphere
+
+# Set-up SSH keys for the new user
+mkdir -m700 /home/websphere/.ssh
+cat /root/.ssh/authorized_keys > /home/websphere/.ssh/authorized_keys
+chmod 600 /home/websphere/.ssh/authorized_keys
+chown -R websphere:websphere /home/websphere/.ssh
+
+# Create an IBM WAS home directory
+mkdir -p /opt/ibm
+chown -R websphere:websphere /opt/ibm
+
+# Install OS pre-requisites
+# Both i386 and x86_64 packages required for some packages
+# http://publib.boulder.ibm.com/infocenter/wasinfo/v7r0/topic/com.ibm.websphere.installation.base.doc/info/aes/ae/tins_linuxsetup_rhel5.html
+# compat-libstdc++-296 appears to be i386 only
+yum -y install compat-libstdc++-33 compat-db elfutils elfutils-libs libXp libXmu libXtst libXft pam rpm-build
+yum -y install compat-libstdc++-33.i386 compat-libstdc++-296.i386 compat-db.i386 libXp.i386 libXmu.i386 libXtst.i386 libXft.i386 pam.i386 
+

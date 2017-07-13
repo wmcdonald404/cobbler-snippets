@@ -1,0 +1,32 @@
+# el5/post/ibm/jdk/7/linux/x86_64/7009
+# Install IBM WebSphere JDK 7.0.0.9 (aka 
+# Requires:
+# el5/post/ibm/was/common/linux/noarch/base
+# el5/post/ibm/was/7/linux/x86_64/700
+# el5/post/ibm/upd/7/linux/x86_64/70011 (or later)
+# el5/post/ibm/was/7/linux/x86_64/7007
+
+# Create the directory layout, grab the install media and unpack
+mkdir -p /home/ibm/was/7/linux/x86_64/{media,response,install}
+wget -q http://buildhost/media/ibm/was/7/linux/x86_64/7.0.0-WS-WASSDK-LinuxX64-FP0000009.pak -P /home/ibm/was/7/linux/x86_64/media
+
+# Create the response file
+cat > /home/ibm/was/7/linux/x86_64/response/7007_jdk.rsp <<EOF
+-OPT checkFilePermissions="true"
+-W maintenance.package="/home/ibm/was/7/linux/x86_64/media/7.0.0-WS-WASSDK-LinuxX64-FP0000009.pak"
+-W product.location="/opt/ibm/WebSphere/AppServer"
+-W update.type="install"
+EOF
+
+# Temporarily switch redhat-release
+cp -f /etc/redhat-release /etc/redhat-release.centos54
+cat > /etc/redhat-release.rhel54 <<EOF
+Red Hat Enterprise Linux Server release 5.4 (Tikanga)
+EOF
+cp -f /etc/redhat-release.rhel54 /etc/redhat-release 
+
+# Update silently
+/opt/ibm/WebSphere/UpdateInstaller/update.sh -silent -options /home/ibm/was/7/linux/x86_64/response/7007_jdk.rsp
+
+# Switch redhat-release back
+cp -f /etc/redhat-release.centos54 /etc/redhat-release 

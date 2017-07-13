@@ -1,0 +1,15 @@
+mkdir -p -m 700 /root/.ssh
+mkdir -p -m 700 /root/.ssh/RCS
+touch /root/.ssh/authorized_keys
+chmod 600 /root/.ssh/authorized_keys
+ci -t-'root users SSH pubkeys' -u /root/.ssh/authorized_keys
+co -l /root/.ssh/authorized_keys
+cat > /root/.ssh/authorized_keys <<EOF
+#
+# root user's SSH pubkeys
+#
+# \\$Id\\$
+#
+ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAIBl4YaP2ig679Fkr9bnWnKCdwxmkNKIQoDfx2Ek+0DNkhRXgTJ+7Aj33WoFDpE7aX+vIuZqnRmm8MPez2rjtis4I2NKOb6d16lC5j6hH/bCcDYO/30VI9YhSC6GSy88IUcfB4rYp0hTSgNCntnxbtuOYdnZB+3nSrBPpfDtGd3prw== wmcdonald rsa-key-20050324
+EOF
+ci -m'Setting up initial public key for Will McDonald. --BUILD.' -u /root/.ssh/authorized_keys

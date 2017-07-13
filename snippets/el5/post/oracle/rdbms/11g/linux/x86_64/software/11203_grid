@@ -1,0 +1,160 @@
+# el5/post/oracle/rdbms/11g/linux/x86_64/software/11203_grid
+#
+# Install Oracle 11.2.0.3 Grid Infrastructure Software
+# 
+# Requires:
+# el5/post/oracle/common/11g/linux/x86_64/common
+
+# Create the directory layout, grab the install media and unpack
+#
+# Note: only certain pieces are required for each installation type
+#
+# https://updates.oracle.com/Orion/Services/download?type=readme&aru=14125322
+# 
+# Installation Type					Zip File
+# Oracle Database (inc RAC) 				p10404530_112030_platform_1of7.zip 
+#  " " 	   " "						p10404530_112030_platform_2of7.zip
+# Oracle Grid Infrastructure (inc ASM, CRS and Restart)	p10404530_112030_platform_3of7.zip
+# Oracle Database Client				p10404530_112030_platform_4of7.zip
+# Oracle Gateways					p10404530_112030_platform_5of7.zip
+# Oracle Examples					p10404530_112030_platform_6of7.zip
+# Deinstall						p10404530_112030_platform_7of7.zip
+
+mkdir -p /home/oracle/rdbms/11g/linux/x86_64/{media,response,install}
+wget -q http://buildhost/media/oracle/rdbms/11g/linux/x86_64/p10404530_112030_Linux-x86-64_3of7.zip -P /home/oracle/rdbms/11g/linux/x86_64/media
+for file in /home/oracle/rdbms/11g/linux/x86_64/media/p10404530_112030_Linux-x86-64_3of7.zip 
+do
+	unzip -q \${file} -d /home/oracle/rdbms/11g/linux/x86_64/install
+done
+
+# Create the OUI runInstaller response file
+cat > /home/oracle/rdbms/11g/linux/x86_64/response/11203_grid.rsp <<EOF
+oracle.install.responseFileVersion=/oracle/install/rspfmt_crsinstall_response_schema_v11_2_0
+ORACLE_HOSTNAME=
+INVENTORY_LOCATION=
+SELECTED_LANGUAGES=en_GB,en
+oracle.install.option=HA_CONFIG
+ORACLE_BASE=/u01/app/oracle
+ORACLE_HOME=/u01/app/oracle/product/11.2.0/grid_1
+# oracle.install.asm.OSDBA=asmdba
+# oracle.install.asm.OSOPER=asmoper
+# oracle.install.asm.OSASM=asmadmin
+oracle.install.asm.OSDBA=dba
+oracle.install.asm.OSOPER=dba
+oracle.install.asm.OSASM=dba
+oracle.install.crs.config.gpnp.scanName=
+oracle.install.crs.config.gpnp.scanPort=
+oracle.install.crs.config.clusterName=
+oracle.install.crs.config.gpnp.configureGNS=false
+oracle.install.crs.config.gpnp.gnsSubDomain=
+oracle.install.crs.config.gpnp.gnsVIPAddress=
+oracle.install.crs.config.autoConfigureClusterNodeVIP=
+oracle.install.crs.config.clusterNodes=
+oracle.install.crs.config.networkInterfaceList=
+oracle.install.crs.config.storageOption=
+oracle.install.crs.config.sharedFileSystemStorage.diskDriveMapping=
+oracle.install.crs.config.sharedFileSystemStorage.votingDiskLocations=
+oracle.install.crs.config.sharedFileSystemStorage.votingDiskRedundancy=NORMAL
+oracle.install.crs.config.sharedFileSystemStorage.ocrLocations=
+oracle.install.crs.config.sharedFileSystemStorage.ocrRedundancy=NORMAL
+oracle.install.crs.config.useIPMI=false
+oracle.install.crs.config.ipmi.bmcUsername=
+oracle.install.crs.config.ipmi.bmcPassword=
+oracle.install.asm.SYSASMPassword=SYS
+oracle.install.asm.diskGroup.name=DUMMY
+oracle.install.asm.diskGroup.redundancy=NORMAL
+oracle.install.asm.diskGroup.AUSize=1
+oracle.install.asm.diskGroup.disks=/dev/raw/raw1,/dev/raw/raw2,/dev/raw/raw3 
+oracle.install.asm.diskGroup.diskDiscoveryString=/dev/raw/raw*
+oracle.install.asm.monitorPassword=ASMSNMP
+oracle.install.crs.upgrade.clusterNodes=
+oracle.install.asm.upgradeASM=false
+oracle.installer.autoupdates.option=
+oracle.installer.autoupdates.downloadUpdatesLoc=
+AUTOUPDATES_MYORACLESUPPORT_USERNAME=
+AUTOUPDATES_MYORACLESUPPORT_PASSWORD=
+PROXY_HOST=
+PROXY_PORT=
+PROXY_USER=
+PROXY_PWD=
+PROXY_REALM=
+EOF
+
+# Create the configToolAllCommands password response file for additional
+# assistants
+cat > /home/oracle/rdbms/11g/linux/x86_64/response/11203_configtool.rsp <<EOF
+oracle.assistants.asm|S_ASMPASSWORD=SYS
+oracle.assistants.asm|S_ASMMONITORPASSWORD=ASMSNMP
+EOF
+
+# Dirty hacks!
+# Grid Infrastructure will only install  ASM through response files if ASM has block
+# devices/disks available when the OUI is run. Under normal circumstances, a well documented
+# workaround is to create a loopback file psuedo-device and present this to ASMCA as a raw device.
+# In the limited Busybox/Kickstart environment, native raw device support is not available.
+# We need to make it available.
+
+# Dirty hack (1)
+mkdir /dev/raw
+mknod /dev/rawctl c 162 0
+
+# Dirty hack (2)
+# Create loopback disks to permit ASM +DUMMY diskgroup initialisation at install time
+mkdir /asm
+for i in 1 2 3
+do
+	dd if=/dev/zero of=/asm/disk\${i} bs=1024 count=2097152
+	losetup /dev/loop\${i} /asm/disk\${i}
+	echo "losetup /dev/loop\${i} /asm/disk\${i}" >> rc.local
+	mknod /dev/raw/raw\${i} c 162 \${i}
+	raw /dev/raw/raw\${i} /dev/loop\${i}
+	echo "raw /dev/raw/raw\${i} /dev/loop\${i}" >> rc.local
+	sleep 3
+	chown oracle:dba /asm/disk\${i} /dev/raw/raw\${i}
+	dd if=/dev/zero of=/dev/loop\${i} bs=1024 count=10240
+done
+
+# Note: to impose proper privilege separation between the Grid Infrastructure/ASM and RDBMS ORACLE_HOMEs
+#
+# groupadd -g 502 asmadmin
+# groupadd -g 503 asmdba
+# groupadd -g 504 asmoper
+# usermod -aG asmadmin,asmdba,asmoper oracle
+# useradd -m -u 501 -g oinstall -G asmadmin,asmdba,asmoper -d /home/grid -s /bin/bash grid
+#
+# Then install the grid home as the 'grid' user
+
+# Dirty hack (3)
+# The OUI pre-reqs checker in 11.2 uses 'who -r' to check the runlevel=3 or 5. In the limited chroot
+# environment, 'who' doesn't return anything.
+mv /usr/bin/who /usr/bin/who.oratmp
+cat > /usr/bin/who <<EOF
+echo "           run-level 5  2011-02-09 15:53                   last=S"
+EOF
+chmod +x /usr/bin/who
+su - oracle -c "who -r"
+
+# Dirty hack (4)
+# The Grid Infrastructure installation scripts also require /dev/initctl to be present
+# to register services in /etc/innitab (or something)
+mknod -m 600 /dev/initctl p
+
+# DEBUG:
+# ls -l /etc/inittab
+# ls -l /var/run/utmp
+# who -r
+# su - oracle -c "who -r"
+# chmod 664 /var/run/utmp
+# su - oracle -c "who -r"
+
+# Change ownership and then run the OUI silently to install the product
+chown -R oracle:oinstall /home/oracle/rdbms
+su - oracle -c "/home/oracle/rdbms/11g/linux/x86_64/install/grid/runInstaller -silent -responseFile /home/oracle/rdbms/11g/linux/x86_64/response/11203_grid.rsp -waitforcompletion"
+/u01/app/oracle/product/11.2.0/grid_1/root.sh -silent
+su - oracle -c "/u01/app/oracle/product/11.2.0/grid_1/cfgtoollogs/configToolAllCommands RESPONSE_FILE=/home/oracle/rdbms/11g/linux/x86_64/response/11203_configtool.rsp"
+
+# Dirty hack (3) reversion
+mv /usr/bin/who.oratmp /usr/bin/who
+
+# OPTIONAL: clean up
+# rm -rf /home/oracle/db 

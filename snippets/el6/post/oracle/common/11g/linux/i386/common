@@ -1,0 +1,44 @@
+# /var/lib/cobbler/snippets/el5/post/oracle/common/11g/linux/i386/common
+#
+# Install Oracle Validated RPM to fulfil most Oracle software initial prerequisites
+
+# Base OS pre-requisites
+yum -y install wget unzip
+
+# Create the directory layout, grab the install media and unpack
+mkdir -p /home/oracle/rdbms/11g/linux/i386/{media,response,install}
+
+# Download and install oracle-validated, this creates users & groups, adds required 
+# kernel parameters to /etc/sysctl.conf and pulls in most other necessary RPMs as needed
+wget -q http://buildhost/media/oracle/common/11g/linux/i386/oracle-validated-1.0.0-18.el5.i386.rpm -P /home/oracle/rdbms/11g/linux/i386/media
+rpm --import http://buildhost/media/oracle/common/11g/linux/i386/RPM-GPG-KEY-oracle
+yum -y localinstall /home/oracle/rdbms/11g/linux/i386/media/oracle-validated-1.0.0-18.el5.i386.rpm
+
+# Copy root's SSH keys into the Oracle user's home
+mkdir -m700 /home/oracle/.ssh
+cat /root/.ssh/authorized_keys > /home/oracle/.ssh/authorized_keys
+chmod 600 /home/oracle/.ssh/authorized_keys
+chown -R oracle:oinstall /home/oracle/.ssh
+
+# Make an ORACLE_BASE
+mkdir -p /u01/app/oracle/
+chown -R oracle:oinstall /u01
+
+# Create the Oracle Inventory
+cat > /etc/oraInst.loc <<EOF
+inventory_loc=/u01/app/oracle/oraInventory
+inst_group=
+EOF
+chown oracle:oinstall /etc/oraInst.loc
+chmod 664 /etc/oraInst.loc
+
+# Base OS requirements for OAS, OID & MCRA on RHEL5 (over and above 
+# oracle-validated)
+# yum -y install libICE libSM libXp libXt control-center xauth
+
+# Additional non-standard requirements for OAS, OID & MCRA on RHEL5
+# rpm -ivh http://buildhost/media/oracle/as/10g/linux/i386/xorg-x11-libs-compat-6.8.2-1.EL.33.0.1.i386.rpm
+# ln -s /usr/lib/libgdbm.so.2.0.0 /usr/lib/libdb.so.2
+# ln -fs /usr/X11R6/lib/libXtst.so.6 /usr/lib/libXtst.so.6
+# rpm -ivh http://buildhost/media/oracle/as/10g/linux/i386/openmotif21-2.1.30-11.EL5.i386.rpm
+# ldconfig

@@ -1,0 +1,13 @@
+# el5/post/sun/java/14/linux/i386/14213_jdk
+#
+# Install Sun Java JDK 1.4.2_13 JDK
+#
+# Requires:
+# el5/post/yum/[i386/i386]/base_repo
+# el5/post/oracle/wls/common/linux/noarch/base [wget]
+ 
+# Create the directory layout, grab the install media and unpack
+mkdir -p /home/sun/java/14/linux/i386/media
+wget -q http://buildhost/media/sun/java/14/linux/i386/jdk142_13.tgz -P  /home/sun/java/14/linux/i386/media
+tar -C /opt/ -xzf /home/sun/java/14/linux/i386/media/jdk142_13.tgz
+

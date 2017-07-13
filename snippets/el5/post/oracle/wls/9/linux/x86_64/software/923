@@ -1,0 +1,37 @@
+# el5/post/oracle/wls/9/linux/x86_64/software/923
+#
+# Install Oracle WebLogic 9.2 MP3 x86_64 with 64-bit JVM
+# 
+# Requires:
+# el5/post/yum/x86_64/base_repo
+# el5/post/ssh/noarch/ssh_keys
+# el5/post/oracle/wls/common/linux/noarch/base
+# el5/post/sun/java/15/linux/x86_64/15012_jdk
+
+# Create the directory layout, grab the install media and unpack
+mkdir -p /home/oracle/wls/9/linux/x86_64/{media,response,install}
+wget -q http://buildhost/media/oracle/wls/9/linux/x86_64/wls923_generic.jar -P  /home/oracle/wls/9/linux/x86_64/media
+
+# Create the response file
+#
+# http://download.oracle.com/docs/cd/E13179_01/common/docs103/install/silent.html
+
+cat > /home/oracle/wls/9/linux/x86_64/response/923_wls.xml <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Silent installer option: -mode=silent -silent_xml=923_wls.xml -->
+<bea-installer>
+<input-fields>
+    <data-value name="BEAHOME" value="/opt/bea" />
+    <data-value name="USER_INSTALL_DIR" value="/opt/bea/weblogic923" />
+    <data-value name="COMPONENT_PATHS" value="WebLogic Server/Server|WebLogic Server/Web Server Plug-Ins" />
+</input-fields>
+</bea-installer>
+EOF
+
+
+# Change ownership and then run the OUI silently to install the product
+chown -R weblogic:weblogic /opt/bea /home/oracle/wls
+su - weblogic -c "/opt/jdk150_12/bin/java -jar /home/oracle/wls/9/linux/x86_64/media/wls923_generic.jar -mode=silent -silent_xml=/home/oracle/wls/9/linux/x86_64/response/923_wls.xml -log=/home/oracle/wls/9/linux/x86_64/install/923_wls.log"
+
+# OPTIONAL: clean up
+# rm -rf /home/oracle/wls

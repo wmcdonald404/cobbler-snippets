@@ -1,0 +1,328 @@
+# el5/post/oracle/rdbms/11g/linux/x86_64/instance/arm11106
+#
+# Install Oracle 11.1.0.6 RDBMS database instance for Resource Manager 8.x
+# 
+# Requires:
+# el5/post/oracle/common/11g/linux/x86_64/common
+# el5/post/oracle/rdbms/11g/linux/x86_64/software/11106
+
+# Create the directory layout, grab the install media and unpack
+mkdir -p /home/oracle/rdbms/11g/linux/x86_64/{media,response,install}
+
+# Create the response file
+cat > /home/oracle/rdbms/11g/linux/x86_64/response/arm11106.rsp <<EOF
+<DatabaseTemplate name="oss8_resman" description="Amdocs OSS Suite Resource Manager Oracle Database Template" version="11.1.0.0.0">
+   <CommonAttributes>
+      <option name="ISEARCH" value="false"/>
+      <option name="OMS" value="false"/>
+      <option name="JSERVER" value="true"/>
+      <option name="SPATIAL" value="false"/>
+      <option name="IMEDIA" value="false"/>
+      <option name="XDB_PROTOCOLS" value="true">
+         <tablespace id="SYSAUX"/>
+      </option>
+      <option name="ORACLE_TEXT" value="false">
+         <tablespace id="SYSAUX"/>
+      </option>
+      <option name="SAMPLE_SCHEMA" value="false"/>
+      <option name="CWMLITE" value="false">
+         <tablespace id="SYSAUX"/>
+      </option>
+      <option name="EM_REPOSITORY" value="true">
+         <tablespace id="SYSAUX"/>
+      </option>
+      <option name="APEX" value="false"/>
+      <option name="OWB" value="false"/>
+      <option name="DV" value="false"/>
+   </CommonAttributes>
+   <Variables/>
+   <CustomScripts Execute="false"/>
+   <InitParamAttributes>
+      <InitParams>
+         <initParam name="audit_file_dest" value="{ORACLE_BASE}/admin/{DB_UNIQUE_NAME}/adump"/>
+         <initParam name="audit_trail" value="db"/>
+         <initParam name="compatible" value="11.1.0.0.0"/>
+         <initParam name="control_files" value="(&quot;{ORACLE_BASE}/oradata/{DB_UNIQUE_NAME}/control01.ctl&quot;, &quot;{ORACLE_BASE}/oradata/{DB_UNIQUE_NAME}/control02.ctl&quot;, &quot;{ORACLE_BASE}/oradata/{DB_UNIQUE_NAME}/control03.ctl&quot;)"/>
+         <initParam name="core_dump_dest" value="{ORACLE_BASE}/admin/{DB_UNIQUE_NAME}/cdump"/>
+         <initParam name="cursor_sharing" value="SIMILAR"/>
+         <initParam name="db_block_size" value="8" unit="KB"/>
+         <initParam name="db_domain" value=""/>
+         <initParam name="db_file_multiblock_read_count" value="16"/>
+         <initParam name="db_name" value=""/>
+         <initParam name="db_recovery_file_dest" value="{ORACLE_BASE}/flash_recovery_area"/>
+         <initParam name="db_recovery_file_dest_size" value="2048" unit="MB"/>
+         <initParam name="db_writer_processes" value="20"/>
+         <initParam name="diagnostic_dest" value="{ORACLE_BASE}"/>
+         <initParam name="dispatchers" value="(PROTOCOL=TCP) (SERVICE={SID}XDB)"/>
+         <initParam name="fast_start_mttr_target" value="300"/>
+         <initParam name="java_max_sessionspace_size" value="120000000"/>
+         <initParam name="java_soft_sessionspace_limit" value="100000000"/>
+         <initParam name="job_queue_processes" value="3"/>
+         <initParam name="log_buffer" value="512000"/>
+         <initParam name="nls_language" value="ENGLISH"/>
+         <initParam name="nls_territory" value="UNITED KINGDOM"/>
+         <initParam name="open_cursors" value="600"/>
+         <initParam name="optimizer_secure_view_merging" value="FALSE"/>
+         <initParam name="parallel_max_servers" value="5"/>
+         <initParam name="pga_aggregate_target" value="100" unit="MB"/>
+         <initParam name="processes" value="150"/>
+         <initParam name="remote_login_passwordfile" value="EXCLUSIVE"/>
+         <initParam name="session_cached_cursors" value="150"/>
+         <initParam name="sga_max_size" value="348512000"/>
+         <initParam name="sga_target" value="300" unit="MB"/>
+         <initParam name="sort_area_retained_size" value="1024000"/>
+         <initParam name="undo_retention" value="10800"/>
+         <initParam name="undo_tablespace" value="UNDO01"/>
+         <initParam name="utl_file_dir" value="*"/>
+      </InitParams>
+      <MiscParams>
+         <databaseType>MULTIPURPOSE</databaseType>
+         <maxUserConn>20</maxUserConn>
+         <percentageMemTOSGA>10</percentageMemTOSGA>
+         <customSGA>false</customSGA>
+         <characterSet>AL32UTF8</characterSet>
+         <nationalCharacterSet>AL16UTF16</nationalCharacterSet>
+         <archiveLogMode>false</archiveLogMode>
+         <initParamFileName>{ORACLE_BASE}/admin/{DB_UNIQUE_NAME}/pfile/init.ora</initParamFileName>
+      </MiscParams>
+      <SPfile useSPFile="true">{ORACLE_HOME}/dbs/spfile{SID}.ora</SPfile>
+   </InitParamAttributes>
+   <StorageAttributes>
+      <ControlfileAttributes id="Controlfile">
+         <maxDatafiles>100</maxDatafiles>
+         <maxLogfiles>16</maxLogfiles>
+         <maxLogMembers>3</maxLogMembers>
+         <maxLogHistory>1</maxLogHistory>
+         <maxInstances>8</maxInstances>
+         <image name="control01.ctl" filepath="{ORACLE_BASE}/oradata/{DB_UNIQUE_NAME}/"/>
+         <image name="control02.ctl" filepath="{ORACLE_BASE}/oradata/{DB_UNIQUE_NAME}/"/>
+         <image name="control03.ctl" filepath="{ORACLE_BASE}/oradata/{DB_UNIQUE_NAME}/"/>
+      </ControlfileAttributes>
+      <DatafileAttributes id="{ORACLE_BASE}/oradata/{DB_UNIQUE_NAME}/sysaux01.dbf">
+         <tablespace>SYSAUX</tablespace>
+         <temporary>false</temporary>
+         <online>true</online>
+         <status>0</status>
+         <size unit="MB">120</size>
+         <reuse>true</reuse>
+         <autoExtend>true</autoExtend>
+         <increment unit="KB">10240</increment>
+         <maxSize unit="MB">-1</maxSize>
+      </DatafileAttributes>
+      <DatafileAttributes id="{ORACLE_BASE}/oradata/{DB_UNIQUE_NAME}/system01.dbf">
+         <tablespace>SYSTEM</tablespace>
+         <temporary>false</temporary>
+         <online>true</online>
+         <status>0</status>
+         <size unit="MB">1024</size>
+         <reuse>true</reuse>
+         <autoExtend>true</autoExtend>
+         <increment unit="KB">10240</increment>
+         <maxSize unit="MB">-1</maxSize>
+      </DatafileAttributes>
+      <DatafileAttributes id="{ORACLE_BASE}/oradata/{DB_UNIQUE_NAME}/temp01.dbf">
+         <tablespace>TEMPORARY</tablespace>
+         <temporary>false</temporary>
+         <online>true</online>
+         <status>0</status>
+         <size unit="MB">256</size>
+         <reuse>true</reuse>
+         <autoExtend>true</autoExtend>
+         <increment unit="KB">640</increment>
+         <maxSize unit="MB">-1</maxSize>
+      </DatafileAttributes>
+      <DatafileAttributes id="{ORACLE_BASE}/oradata/{DB_UNIQUE_NAME}/undotbs01.dbf">
+         <tablespace>UNDO01</tablespace>
+         <temporary>false</temporary>
+         <online>true</online>
+         <status>0</status>
+         <size unit="MB">2048</size>
+         <reuse>true</reuse>
+         <autoExtend>true</autoExtend>
+         <increment unit="KB">5120</increment>
+         <maxSize unit="MB">-1</maxSize>
+      </DatafileAttributes>
+      <DatafileAttributes id="{ORACLE_BASE}/oradata/{DB_UNIQUE_NAME}/users01.dbf">
+         <tablespace>USR</tablespace>
+         <temporary>false</temporary>
+         <online>true</online>
+         <status>0</status>
+         <size unit="MB">2048</size>
+         <reuse>true</reuse>
+         <autoExtend>true</autoExtend>
+         <increment unit="KB">1280</increment>
+         <maxSize unit="MB">-1</maxSize>
+      </DatafileAttributes>
+      <TablespaceAttributes id="SYSAUX">
+         <online>true</online>
+         <offlineMode>1</offlineMode>
+         <readOnly>false</readOnly>
+         <temporary>false</temporary>
+         <defaultTemp>false</defaultTemp>
+         <undo>false</undo>
+         <local>true</local>
+         <blockSize>-1</blockSize>
+         <allocation>1</allocation>
+         <uniAllocSize unit="KB">-1</uniAllocSize>
+         <initSize unit="KB">64</initSize>
+         <increment unit="KB">64</increment>
+         <incrementPercent>50</incrementPercent>
+         <minExtends>1</minExtends>
+         <maxExtends>4096</maxExtends>
+         <minExtendsSize unit="KB">64</minExtendsSize>
+         <logging>true</logging>
+         <recoverable>false</recoverable>
+         <maxFreeSpace>0</maxFreeSpace>
+         <autoSegmentMgmt>true</autoSegmentMgmt>
+         <bigfile>false</bigfile>
+         <datafilesList>
+            <TablespaceDatafileAttributes id="{ORACLE_BASE}/oradata/{DB_UNIQUE_NAME}/sysaux01.dbf">
+               <id>-1</id>
+            </TablespaceDatafileAttributes>
+         </datafilesList>
+      </TablespaceAttributes>
+      <TablespaceAttributes id="SYSTEM">
+         <online>true</online>
+         <offlineMode>1</offlineMode>
+         <readOnly>false</readOnly>
+         <temporary>false</temporary>
+         <defaultTemp>false</defaultTemp>
+         <undo>false</undo>
+         <local>true</local>
+         <blockSize>-1</blockSize>
+         <allocation>3</allocation>
+         <uniAllocSize unit="KB">-1</uniAllocSize>
+         <initSize unit="KB">64</initSize>
+         <increment unit="KB">64</increment>
+         <incrementPercent>50</incrementPercent>
+         <minExtends>1</minExtends>
+         <maxExtends>-1</maxExtends>
+         <minExtendsSize unit="KB">64</minExtendsSize>
+         <logging>true</logging>
+         <recoverable>false</recoverable>
+         <maxFreeSpace>0</maxFreeSpace>
+         <autoSegmentMgmt>true</autoSegmentMgmt>
+         <bigfile>false</bigfile>
+         <datafilesList>
+            <TablespaceDatafileAttributes id="{ORACLE_BASE}/oradata/{DB_UNIQUE_NAME}/system01.dbf">
+               <id>-1</id>
+            </TablespaceDatafileAttributes>
+         </datafilesList>
+      </TablespaceAttributes>
+      <TablespaceAttributes id="TEMPORARY">
+         <online>true</online>
+         <offlineMode>1</offlineMode>
+         <readOnly>false</readOnly>
+         <temporary>true</temporary>
+         <defaultTemp>true</defaultTemp>
+         <undo>false</undo>
+         <local>true</local>
+         <blockSize>-1</blockSize>
+         <allocation>1</allocation>
+         <uniAllocSize unit="KB">-1</uniAllocSize>
+         <initSize unit="KB">64</initSize>
+         <increment unit="KB">64</increment>
+         <incrementPercent>0</incrementPercent>
+         <minExtends>1</minExtends>
+         <maxExtends>0</maxExtends>
+         <minExtendsSize unit="KB">64</minExtendsSize>
+         <logging>true</logging>
+         <recoverable>false</recoverable>
+         <maxFreeSpace>0</maxFreeSpace>
+         <autoSegmentMgmt>true</autoSegmentMgmt>
+         <bigfile>false</bigfile>
+         <datafilesList>
+            <TablespaceDatafileAttributes id="{ORACLE_BASE}/oradata/{DB_UNIQUE_NAME}/temp01.dbf">
+               <id>-1</id>
+            </TablespaceDatafileAttributes>
+         </datafilesList>
+      </TablespaceAttributes>
+      <TablespaceAttributes id="UNDO01">
+         <online>true</online>
+         <offlineMode>1</offlineMode>
+         <readOnly>false</readOnly>
+         <temporary>false</temporary>
+         <defaultTemp>false</defaultTemp>
+         <undo>true</undo>
+         <local>true</local>
+         <blockSize>-1</blockSize>
+         <allocation>1</allocation>
+         <uniAllocSize unit="KB">-1</uniAllocSize>
+         <initSize unit="KB">512</initSize>
+         <increment unit="KB">512</increment>
+         <incrementPercent>50</incrementPercent>
+         <minExtends>8</minExtends>
+         <maxExtends>4096</maxExtends>
+         <minExtendsSize unit="KB">512</minExtendsSize>
+         <logging>true</logging>
+         <recoverable>false</recoverable>
+         <maxFreeSpace>0</maxFreeSpace>
+         <autoSegmentMgmt>true</autoSegmentMgmt>
+         <bigfile>false</bigfile>
+         <datafilesList>
+            <TablespaceDatafileAttributes id="{ORACLE_BASE}/oradata/{DB_UNIQUE_NAME}/undotbs01.dbf">
+               <id>-1</id>
+            </TablespaceDatafileAttributes>
+         </datafilesList>
+      </TablespaceAttributes>
+      <TablespaceAttributes id="USR">
+         <online>true</online>
+         <offlineMode>1</offlineMode>
+         <readOnly>false</readOnly>
+         <temporary>false</temporary>
+         <defaultTemp>false</defaultTemp>
+         <undo>false</undo>
+         <local>true</local>
+         <blockSize>-1</blockSize>
+         <allocation>1</allocation>
+         <uniAllocSize unit="KB">-1</uniAllocSize>
+         <initSize unit="KB">128</initSize>
+         <increment unit="KB">128</increment>
+         <incrementPercent>0</incrementPercent>
+         <minExtends>1</minExtends>
+         <maxExtends>4096</maxExtends>
+         <minExtendsSize unit="KB">128</minExtendsSize>
+         <logging>true</logging>
+         <recoverable>false</recoverable>
+         <maxFreeSpace>0</maxFreeSpace>
+         <autoSegmentMgmt>true</autoSegmentMgmt>
+         <bigfile>false</bigfile>
+         <datafilesList>
+            <TablespaceDatafileAttributes id="{ORACLE_BASE}/oradata/{DB_UNIQUE_NAME}/users01.dbf">
+               <id>-1</id>
+            </TablespaceDatafileAttributes>
+         </datafilesList>
+      </TablespaceAttributes>
+      <RedoLogGroupAttributes id="1">
+         <reuse>false</reuse>
+         <fileSize unit="KB">51200</fileSize>
+         <Thread>1</Thread>
+         <member ordinal="0" memberName="redo01.log" filepath="{ORACLE_BASE}/oradata/{DB_UNIQUE_NAME}/"/>
+      </RedoLogGroupAttributes>
+      <RedoLogGroupAttributes id="2">
+         <reuse>false</reuse>
+         <fileSize unit="KB">51200</fileSize>
+         <Thread>1</Thread>
+         <member ordinal="0" memberName="redo02.log" filepath="{ORACLE_BASE}/oradata/{DB_UNIQUE_NAME}/"/>
+      </RedoLogGroupAttributes>
+      <RedoLogGroupAttributes id="3">
+         <reuse>false</reuse>
+         <fileSize unit="KB">51200</fileSize>
+         <Thread>1</Thread>
+         <member ordinal="0" memberName="redo03.log" filepath="{ORACLE_BASE}/oradata/{DB_UNIQUE_NAME}/"/>
+      </RedoLogGroupAttributes>
+   </StorageAttributes>
+</DatabaseTemplate>
+EOF
+
+
+# Change ownership and then run the OUI silently to install the product
+chown -R oracle:oinstall /home/oracle/rdbms
+su - oracle -c "/home/oracle/rdbms/11g/linux/x86_64/install/database/runInstaller -silent -responseFile /home/oracle/rdbms/11g/linux/x86_64/response/11106_rdbms.rsp -waitforcompletion"
+/u01/app/oracle/product/11.1.0/db_1/root.sh -silent
+
+# Create a default listener silently
+su - oracle -c "ORACLE_HOME=/u01/app/oracle/product/11.1.0/db_1 /u01/app/oracle/product/11.1.0/db_1/bin/netca /silent /responseFile /u01/app/oracle/product/11.1.0/db_1/network/install/netca_typ.rsp"
+
+# OPTIONAL: clean up
+# rm -rf /home/oracle/db 

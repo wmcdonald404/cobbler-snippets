@@ -1,0 +1,41 @@
+# el5/post/oracle/wls/8/linux/x86_64/software/815
+#
+# Install Oracle WebLogic 8.1 SP5 with 32-bit JVM.
+# Note: Only 64-bit 1.4.2 JDK is IA64 only!
+# All other non-Itanium WebLogic 8.1 SP5 installs will be 32-bit.
+# 
+# Requires:
+# el5/post/yum/[i386/x86_64]/base_repo
+# el5/post/ssh/noarch/ssh_keys
+# el5/post/oracle/wls/common/linux/noarch/base
+# el5/post/sun/java/14/linux/i386/14213_jdk
+
+# Create the directory layout, grab the install media and unpack
+mkdir -p /home/oracle/wls/8/linux/i386/{media,response,install}
+wget -q http://buildhost/media/oracle/wls/8/linux/i386/server815_linux32.bin -P  /home/oracle/wls/8/linux/i386/media
+
+# Create the response file
+#
+# http://download.oracle.com/docs/cd/E13179_01/common/docs103/install/silent.html
+
+cat > /home/oracle/wls/8/linux/i386/response/815_wls.xml <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Silent installer option: -mode=silent -silent_xml=815_silent.xml -->
+<!-- Optional log: -log=815_silent.log -->
+<domain-template-descriptor>
+<input-fields>
+   <data-value name="BEAHOME" value="/opt/bea" />
+   <data-value name="USER_INSTALL_DIR" value="/opt/bea/weblogic815" />
+   <data-value name="INSTALL_NODE_MANAGER_SERVICE" value="no" />
+   <data-value name="COMPONENT_PATHS" value="WebLogic Server/Server" />
+</input-fields>
+</domain-template-descriptor>
+EOF
+
+# Change ownership and then run the OUI silently to install the product
+chown -R weblogic:weblogic /opt/bea /home/oracle/wls
+chmod u+x /home/oracle/wls/8/linux/i386/media/server815_linux32.bin
+su - weblogic -c "/home/oracle/wls/8/linux/i386/media/server815_linux32.bin -mode=silent -silent_xml=/home/oracle/wls/8/linux/i386/response/815_wls.xml -log=/home/oracle/wls/8/linux/i386/install/815_wls.log"
+
+# OPTIONAL: clean up
+# rm -rf /home/oracle/wls

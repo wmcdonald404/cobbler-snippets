@@ -1,0 +1,15 @@
+# snippets/el5/post/yum/x86_64/base_repo_54
+# Setup a base CentOS 5.4 repository
+
+rm -f /etc/yum.repos.d/CentOS-*
+cat > /etc/yum.repos.d/centos54-x86_64-base.repo <<EOF
+#
+# CentOS 5.4 Base Yum Repository
+#
+[centos54-x86_64-base]
+name=CentOS Enterprise Linux \$releasever - \$basearch - Base
+baseurl=http://buildhost/cobbler/ks_mirror/centos54-x86_64
+enabled=1
+gpgcheck=1
+gpgkey=http://buildhost/cobbler/ks_mirror/centos54-x86_64/RPM-GPG-KEY-CentOS-5
+EOF

@@ -1,0 +1,102 @@
+# el5/post/oracle/rdbms/11g/linux/x86_64/software/11202
+#
+# Install Oracle 11.2.0.2 RDBMS Software
+# 
+# Requires:
+# el5/post/oracle/common/11g/linux/x86_64/common
+
+# Create the directory layout, grab the install media and unpack
+mkdir -p /home/oracle/rdbms/11g/linux/x86_64/{media,response,install}
+wget -q http://buildhost/media/oracle/rdbms/11g/linux/x86_64/p10098816_112020_Linux-x86-64_{1,2,3,4,5,6,7}of7.zip -P /home/oracle/rdbms/11g/linux/x86_64/media
+for file in /home/oracle/rdbms/11g/linux/x86_64/media/p10098816_112020_Linux-x86-64_{1,2,3,4,5,6,7}of7.zip 
+do
+	unzip -q \${file} -d /home/oracle/rdbms/11g/linux/x86_64/install
+done
+
+# Create the response file
+cat > /home/oracle/rdbms/11g/linux/x86_64/response/11202_rdbms.rsp <<EOF
+oracle.install.responseFileVersion=/oracle/install/rspfmt_dbinstall_response_schema_v11_2_0
+oracle.install.option=INSTALL_DB_SWONLY
+ORACLE_HOSTNAME=
+UNIX_GROUP_NAME=oinstall
+INVENTORY_LOCATION=/u01/app/oracle/oraInventory
+SELECTED_LANGUAGES=en_GB,en
+ORACLE_HOME=/u01/app/oracle/product/11.2.0/db_1
+ORACLE_BASE=/u01/app/oracle
+oracle.install.db.InstallEdition=EE
+oracle.install.db.EEOptionsSelection=false
+oracle.install.db.optionalComponents=oracle.rdbms.partitioning:11.2.0.2.0,oracle.oraolap:11.2.0.2.0,oracle.rdbms.dm:11.2.0.2.0,oracle.rdbms.dv:11.2.0.2.0,orcle.rdbms.lbac:11.2.0.2.0,oracle.rdbms.rat:11.2.0.2.0
+oracle.install.db.DBA_GROUP=dba
+oracle.install.db.OPER_GROUP=dba
+oracle.install.db.CLUSTER_NODES=
+oracle.install.db.isRACOneInstall=
+oracle.install.db.racOneServiceName=
+oracle.install.db.config.starterdb.type=
+oracle.install.db.config.starterdb.globalDBName=
+oracle.install.db.config.starterdb.SID=
+oracle.install.db.config.starterdb.characterSet=AL32UTF8
+oracle.install.db.config.starterdb.memoryOption=true
+oracle.install.db.config.starterdb.memoryLimit=
+oracle.install.db.config.starterdb.installExampleSchemas=false
+oracle.install.db.config.starterdb.enableSecuritySettings=true
+oracle.install.db.config.starterdb.password.ALL=
+oracle.install.db.config.starterdb.password.SYS=
+oracle.install.db.config.starterdb.password.SYSTEM=
+oracle.install.db.config.starterdb.password.SYSMAN=
+oracle.install.db.config.starterdb.password.DBSNMP=
+oracle.install.db.config.starterdb.control=DB_CONTROL
+oracle.install.db.config.starterdb.gridcontrol.gridControlServiceURL=
+oracle.install.db.config.starterdb.automatedBackup.enable=false
+oracle.install.db.config.starterdb.automatedBackup.osuid=
+oracle.install.db.config.starterdb.automatedBackup.ospwd=
+oracle.install.db.config.starterdb.storageType=
+oracle.install.db.config.starterdb.fileSystemStorage.dataLocation=
+oracle.install.db.config.starterdb.fileSystemStorage.recoveryLocation=
+oracle.install.db.config.asm.diskGroup=
+oracle.install.db.config.asm.ASMSNMPPassword=
+MYORACLESUPPORT_USERNAME=
+MYORACLESUPPORT_PASSWORD=
+SECURITY_UPDATES_VIA_MYORACLESUPPORT=
+DECLINE_SECURITY_UPDATES=true
+PROXY_HOST=
+PROXY_PORT=
+PROXY_USER=
+PROXY_PWD=
+COLLECTOR_SUPPORTHUB_URL=
+oracle.installer.autoupdates.option=
+oracle.installer.autoupdates.downloadUpdatesLoc=
+AUTOUPDATES_MYORACLESUPPORT_USERNAME=
+AUTOUPDATES_MYORACLESUPPORT_PASSWORD=
+EOF
+
+# Dirty hack (1)
+# The OUI pre-reqs checker in 11.2 uses 'who -r' to check the runlevel=3 or 5. In the limited chroot
+# environment, 'who' doesn't return anything.
+mv /usr/bin/who /usr/bin/who.oratmp
+cat > /usr/bin/who <<EOF
+echo "           run-level 5  2011-02-09 15:53                   last=S"
+EOF
+chmod +x /usr/bin/who
+su - oracle -c "who -r"
+
+# DEBUG:
+# ls -l /etc/inittab
+# ls -l /var/run/utmp
+# who -r
+# su - oracle -c "who -r"
+# chmod 664 /var/run/utmp
+# su - oracle -c "who -r"
+
+# Change ownership and then run the OUI silently to install the product
+chown -R oracle:oinstall /home/oracle/rdbms
+su - oracle -c "/home/oracle/rdbms/11g/linux/x86_64/install/database/runInstaller -silent -responseFile /home/oracle/rdbms/11g/linux/x86_64/response/11202_rdbms.rsp -waitforcompletion"
+/u01/app/oracle/product/11.2.0/db_1/root.sh -silent
+
+# Create a default listener silently
+su - oracle -c "ORACLE_HOME=/u01/app/oracle/product/11.2.0/db_1 /u01/app/oracle/product/11.2.0/db_1/bin/netca /silent /responseFile /u01/app/oracle/product/11.2.0/db_1/network/install/netca_typ.rsp"
+
+# Dirty hack (1) reversion
+mv /usr/bin/who.oratmp /usr/bin/who
+
+# OPTIONAL: clean up
+# rm -rf /home/oracle/db 

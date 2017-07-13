@@ -1,0 +1,13 @@
+# el5/post/sun/java/15/linux/i386/15012_jdk
+#
+# Install Sun Java JDK 1.5.0_12
+#
+# Requires:
+# el5/post/yum/[i386/x86_64]/base_repo
+# el5/post/oracle/wls/common/linux/noarch/base [wget]
+ 
+# Create the directory layout, grab the install media and unpack
+mkdir -p /home/sun/java/15/linux/i386/media
+wget -q http://buildhost/media/sun/java/15/linux/i386/jdk150_12.tgz -P  /home/sun/java/15/linux/i386/media
+tar -C /opt/ -xzf /home/sun/java/15/linux/i386/media/jdk150_12.tgz
+

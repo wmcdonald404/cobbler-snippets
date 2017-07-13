@@ -1,0 +1,24 @@
+# el5/post/oracle/wls/common/linux/noarch/base
+#
+# Set the base prerequisites for Oracle WebLogic installation
+#
+# Requires:
+# el5/post/yum/[i386/x86_64]/base_repo
+# el5/post/ssh/noarch/ssh_keys
+
+# Install wget so we can grab the install files
+yum -y install wget
+
+# Create a WebLogic user
+useradd weblogic
+echo weblogic | passwd --stdin weblogic
+
+# Set-up SSH keys for the new user
+mkdir -m700 /home/weblogic/.ssh
+cat /root/.ssh/authorized_keys > /home/weblogic/.ssh/authorized_keys
+chmod 600 /home/weblogic/.ssh/authorized_keys
+chown -R weblogic:weblogic /home/weblogic/.ssh
+
+# Create a BEA_HOME
+mkdir -p /opt/wls
+chown -R weblogic:weblogic /opt/wls

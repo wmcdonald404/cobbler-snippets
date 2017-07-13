@@ -1,0 +1,74 @@
+# el5/post/oracle/rdbms/11g/linux/x86_64/software/11107
+#
+# Upgrade Oracle 11.1.0.6 RDBMS Software to 11.1.0.7
+# 
+# Requires:
+# el5/post/oracle/common/11g/linux/x86_64/common
+# el5/post/oracle/rdbms/11g/linux/x86_64/software/11106
+
+# Create the directory layout, grab the install media and unpack
+mkdir -p /home/oracle/rdbms/11g/linux/x86_64/{media,response,install}
+wget -q http://buildhost/media/oracle/rdbms/11g/linux/x86_64/p6890831_111070_Linux-x86-64.zip -P /home/oracle/rdbms/11g/linux/x86_64/media
+unzip -q /home/oracle/rdbms/11g/linux/x86_64/media/p6890831_111070_Linux-x86-64.zip -d /home/oracle/rdbms/11g/linux/x86_64/install
+
+# Create the response file
+cat > /home/oracle/rdbms/11g/linux/x86_64/response/11107_rdbms.rsp <<EOF
+RESPONSEFILE_VERSION=2.2.1.0.0
+UNIX_GROUP_NAME=<Value Unspecified>
+FROM_LOCATION="/home/oracle/rdbms/11g/linux/x86_64/install/Disk1/stage/products.xml"
+NEXT_SESSION_RESPONSE=<Value Unspecified>
+ORACLE_HOME="/u01/app/oracle/product/11.1.0/db_1"
+ORACLE_HOME_NAME="oracle11g_db1"
+TOPLEVEL_COMPONENT={"oracle.patchset.db","11.1.0.7.0"}
+SHOW_SPLASH_SCREEN=false
+SHOW_WELCOME_PAGE=false
+SHOW_COMPONENT_LOCATIONS_PAGE=false
+SHOW_CUSTOM_TREE_PAGE=false
+SHOW_SUMMARY_PAGE=false
+SHOW_INSTALL_PROGRESS_PAGE=true
+SHOW_REQUIRED_CONFIG_TOOL_PAGE=false
+SHOW_OPTIONAL_CONFIG_TOOL_PAGE=false
+SHOW_CONFIG_TOOL_PAGE=false
+SHOW_XML_PREREQ_PAGE=false
+SHOW_RELEASE_NOTES=false
+SHOW_END_OF_INSTALL_MSGS=true
+SHOW_ROOTSH_CONFIRMATION=true
+SHOW_END_SESSION_PAGE=false
+SHOW_EXIT_CONFIRMATION=false
+NEXT_SESSION=false
+NEXT_SESSION_ON_FAIL=false
+SHOW_DEINSTALL_CONFIRMATION=false
+SHOW_DEINSTALL_PROGRESS=false
+ACCEPT_LICENSE_AGREEMENT=true
+RESTART_SYSTEM=<Value Unspecified>
+CLUSTER_NODES=<Value Unspecified>
+OUI_HOSTNAME=<Value Unspecified>
+REMOVE_HOMES=<Value Unspecified>
+COMPONENT_LANGUAGES={"en_GB"}
+sl_userNodeList=<Value Unspecified>
+METALINK_USERNAME=<Value Unspecified>
+METALINK_PASSWORD=<Value Unspecified>
+PROXY_HOST=<Value Unspecified>
+PROXY_PORT=<Value Unspecified>
+PROXY_USER=<Value Unspecified>
+PROXY_PWD=<Value Unspecified>
+SECURITY_UPDATES_VIA_METALINK=<Value Unspecified>
+DECLINE_SECURITY_UPDATES=<Value Unspecified>
+COLLECTOR_UPGRADE=<Value Unspecified>
+COLLECTOR_IGNORE_CONFIGURATION=<Value Unspecified>
+COLLECTOR_IGNORE_FAILURES=<Value Unspecified>
+COLLECTOR_USE_OBFUSCATED_PASSWORDS=<Value Unspecified>
+COLLECTOR_RESPONSE_FILE=<Value Unspecified>
+EOF
+
+# The TNS Listener cannot be running during upgrade. Stop the listener.
+su - oracle -c "ORACLE_HOME=/u01/app/oracle/product/11.1.0/db_1 /u01/app/oracle/product/11.1.0/db_1/bin/lsnrctl stop"
+
+# Change ownership and then run the OUI silently to install the product
+# See Oracle KB [ID 762790.1] - DECLINE_SECURITY_UPDATES is required
+chown -R oracle:oinstall /home/oracle/rdbms
+su - oracle -c "/home/oracle/rdbms/11g/linux/x86_64/install/Disk1/runInstaller -silent -responseFile /home/oracle/rdbms/11g/linux/x86_64/response/11107_rdbms.rsp -waitforcompletion DECLINE_SECURITY_UPDATES=TRUE"
+/u01/app/oracle/product/11.1.0/db_1/root.sh -silent
+
+# OPTIONAL: clean up
+# rm -rf /home/oracle/db 

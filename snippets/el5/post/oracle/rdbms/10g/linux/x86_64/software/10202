@@ -1,0 +1,180 @@
+# el5/post/oracle/rdbms/10g/linux/x86_64/software/10202
+#
+# Install Oracle 10.2.0.2 Patch Set
+# 
+# Requires:
+# el5/post/oracle/common/10g/linux/x86_64/common
+# el5/post/oracle/rdbms/10g/linux/x86_64/software/10201
+
+# Create the directory layout, grab the install media and unpack
+mkdir -p /home/oracle/rdbms/10g/linux/x86_64/{media,response,install}
+wget -q http://buildhost/media/oracle/rdbms/10g/linux/x86_64/p4547817_10202_Linux-x86-64.zip -P /home/oracle/rdbms/10g/linux/x86_64/media
+unzip -q /home/oracle/rdbms/10g/linux/x86_64/media/p4547817_10202_Linux-x86-64.zip -d /home/oracle/rdbms/10g/linux/x86_64/install
+
+# Create the response file
+cat > /home/oracle/rdbms/10g/linux/x86_64/response/10202_rdbms.rsp <<EOF
+RESPONSEFILE_VERSION=2.2.1.0.0
+UNIX_GROUP_NAME=" "
+FROM_LOCATION="/home/oracle/rdbms/10g/linux/x86_64/install/Disk1/stage/products.xml"
+FROM_LOCATION_CD_LABEL=<Value Unspecified>
+ORACLE_HOME="/u01/app/oracle/product/10.2.0/db_1"
+ORACLE_HOME_NAME="oracle10g_db1"
+SHOW_WELCOME_PAGE=true
+SHOW_CUSTOM_TREE_PAGE=true
+SHOW_COMPONENT_LOCATIONS_PAGE=true
+SHOW_SUMMARY_PAGE=true
+SHOW_INSTALL_PROGRESS_PAGE=true
+SHOW_REQUIRED_CONFIG_TOOL_PAGE=true
+SHOW_CONFIG_TOOL_PAGE=true
+SHOW_RELEASE_NOTES=true
+SHOW_ROOTSH_CONFIRMATION=true
+SHOW_END_SESSION_PAGE=true
+SHOW_EXIT_CONFIRMATION=true
+NEXT_SESSION=false
+NEXT_SESSION_ON_FAIL=true
+NEXT_SESSION_RESPONSE=<Value Unspecified>
+DEINSTALL_LIST={"oracle.patchset.db","10.2.0.2.0"}
+SHOW_DEINSTALL_CONFIRMATION=true
+SHOW_DEINSTALL_PROGRESS=true
+CLUSTER_NODES={}
+ACCEPT_LICENSE_AGREEMENT=false
+TOPLEVEL_COMPONENT={"oracle.patchset.db","10.2.0.2.0"}
+SHOW_SPLASH_SCREEN=true
+oracle.assistants.server:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_prod"
+oracle.client:PROD_HOME=<Value Unspecified>
+oracle.companionCD.db:PROD_HOME=<Value Unspecified>
+oracle.companionCD.midtier:PROD_HOME=<Value Unspecified>
+oracle.crs:PROD_HOME=<Value Unspecified>
+oracle.csmig:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_rdbms_expimp"
+oracle.rdbms:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_rdbms"
+oracle.dbjava.common:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.dbjava.common"
+oracle.dbjava.dev:PROD_HOME=<Value Unspecified>
+oracle.dbjava.ic:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_dbjava_ic"
+oracle.server:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.server"
+oracle.sysman.console.emcp:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.sysman.console.emcp"
+oracle.sqlplus:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.sqlplus"
+oracle.has.common:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_prod"
+oracle.has.crs:PROD_HOME=<Value Unspecified>
+oracle.has.db:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.has.db"
+oracle.sqlplus.ic:PROD_HOME=<Value Unspecified>
+oracle.htmldb:PROD_HOME=<Value Unspecified>
+oracle.isearch.client:PROD_HOME=<Value Unspecified>
+oracle.isearch.is_common:PROD_HOME=<Value Unspecified>
+oracle.isearch.server:PROD_HOME=<Value Unspecified>
+oracle.javavm.client:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.javavm.client"
+oracle.javavm.companion:PROD_HOME=<Value Unspecified>
+oracle.javavm.server:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_javavm_server_cmp"
+oracle.ldap.client:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1"
+oracle.ldap.companion:PROD_HOME=<Value Unspecified>
+oracle.ldap.admin:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1"
+oracle.sqlplus.isqlplus:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_prod"
+oracle.network.aso:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.network.aso"
+oracle.network.client:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_network_client"
+oracle.network.cman:PROD_HOME=<Value Unspecified>
+oracle.network.listener:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.network.listener"
+oracle.network.owm:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.network.owm"
+oracle.precomp.common:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.precomp.common"
+oracle.precomp.companion:PROD_HOME=<Value Unspecified>
+oracle.tg4drda:PROD_HOME=<Value Unspecified>
+oracle.network.ssl:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.network.ssl"
+oracle.tg4drda.sna:PROD_HOME=<Value Unspecified>
+oracle.odbc:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/bin"
+oracle.oem.client:PROD_HOME=<Value Unspecified>
+oracle.tg4drda.tcp:PROD_HOME=<Value Unspecified>
+oracle.oraolap:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/olap"
+oracle.oraolap.api:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.oraolap.api"
+oracle.oraolap.dbscripts:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_prod"
+oracle.ordim.client:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.interMedia.imclient"
+oracle.ordim.companion:PROD_HOME=<Value Unspecified>
+oracle.ordim.rdbms:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_prod"
+oracle.ordim.server:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.options.intermedia.imserver"
+oracle.ovm:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.ovm"
+oracle.pg4appc:PROD_HOME=<Value Unspecified>
+oracle.pg4mq:PROD_HOME=<Value Unspecified>
+oracle.wwg.plsql:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_rdbms"
+oracle.precomp.lang:PROD_HOME=<Value Unspecified>
+oracle.xdk:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_prod"
+oracle.ctx:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.ctx"
+oracle.rdbms.companion:PROD_HOME=<Value Unspecified>
+oracle.rdbms.crs:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_prod"
+oracle.rdbms.dbscripts:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_rdbms_dbscripts"
+oracle.rdbms.dm:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_prod"
+oracle.rdbms.dmse:PROD_HOME=<Value Unspecified>
+oracle.rdbms.hs_common:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_rdbms_hs_common"
+oracle.rdbms.ic:PROD_HOME=<Value Unspecified>
+oracle.rdbms.install.common:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.rdbms.install.common"
+oracle.rdbms.lbac:PROD_HOME=<Value Unspecified>
+oracle.rdbms.locator:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_prod"
+oracle.rdbms.olap:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_prod"
+oracle.rdbms.partitioning:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.rdbms.partitioning"
+oracle.rdbms.plsql:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_rdbms_plsql"
+oracle.rdbms.rman:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.rdbms.rman"
+oracle.xdk.companion:PROD_HOME=<Value Unspecified>
+oracle.rdbms.util:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.rdbms.util"
+oracle.sdo.companion:PROD_HOME=<Value Unspecified>
+oracle.sdo.locator:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_cartridges_locator"
+oracle.xdk.parser.java:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.xdk.parser.java"
+oracle.assistants.acf:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.assistants.acf"
+oracle.dbjava.jdbc12:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.dbjava.jdbc12"
+oracle.nlsrtl.companion:PROD_HOME=<Value Unspecified>
+oracle.rdbms.tg4tera:PROD_HOME=<Value Unspecified>
+oracle.dbjava.jdbc14:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.dbjava.jdbc14"
+oracle.oraolap.mgmt:PROD_HOME=<Value Unspecified>
+oracle.ordim.jai:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.ordim.jai"
+oracle.sqlj.sqljruntime:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_java_sqlj_sqljruntime"
+oracle.sqlj:PROD_HOME=<Value Unspecified>
+oracle.xdk.server:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.xdk.server"
+oracle.ntrdbms.perfmon:PROD_HOME=<Value Unspecified>
+oracle.sysman.agent.db:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/sysman"
+oracle.sysman.bsln:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_sysman_bsln"
+oracle.sysman.console.db:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_sysman_console_db"
+oracle.xdk.rsf:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_rsf_rdbms_rsf"
+oracle.emdw.rsf:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.emdw.rsf"
+oracle.dbjava.rsf:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.dbjava.rsf"
+oracle.ldap.rsf:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_ldap_rsf_cmp"
+oracle.precomp.rsf:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_rsf_precomp_rsf"
+oracle.has.rsf:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_rsf_has_rsf"
+oracle.rdbms.rsf.ic:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.rdbms.ic"
+oracle.sqlplus.rsf:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.sqlplus.rsf"
+oracle.network.rsf.ic:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.network.rsf.ic"
+oracle.network.rsf:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.network.rsf"
+oracle.nlsrtl.rsf:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_nlsrtl_rsf"
+oracle.oracore.rsf:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.oracore.rsf"
+oracle.buildtools.rsf:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_buildtools_rsf"
+oracle.isearch.rdbms:PROD_HOME=<Value Unspecified>
+oracle.mgw.common:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/mgw"
+oracle.dv:PROD_HOME=<Value Unspecified>
+oracle.rdbms.dv:PROD_HOME=<Value Unspecified>
+oracle.rdbms.dv.oc4j:PROD_HOME=<Value Unspecified>
+oracle.sysman.agent.core:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/sysman"
+oracle.sysman.common.core:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1"
+oracle.sysman.repository.core:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/sysman"
+oracle.javavm.containers:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_java_j2ee_core"
+oracle.ctx.companion:PROD_HOME=<Value Unspecified>
+oracle.sysman.repository.db:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/sysman"
+oracle.nlsrtl.rsf.lbuilder:PROD_HOME=<Value Unspecified>
+oracle.ons:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/opmn"
+oracle.rdbms.install.seeddb:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.rdbms.install.seeddb"
+oracle.rdbms.install.seeddb.sample_schema:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/demo/schema"
+oracle.rdbms.oci:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle_rdbms_oci"
+oracle.rdbms.rsf:PROD_HOME="/u01/app/oracle/product/10.2.0/db_1/oracle.rdbms.rsf"
+s_userName=""
+s_serverName=""
+s_proxyPassword=<Value Unspecified>
+s_portNumber=""
+b_useRegistration=false
+b_proxyused=false
+b_acceptLicense=false
+s_csiNumber=""
+s_countryName="United States"
+s_metaLink=""
+EOF
+
+# Change ownership and then run the OUI silently to install the product
+chown -R oracle:oinstall /home/oracle/rdbms
+su - oracle -c "/home/oracle/rdbms/10g/linux/x86_64/install/Disk1/runInstaller -silent -responseFile /home/oracle/rdbms/10g/linux/x86_64/response/10202_rdbms.rsp -waitforcompletion"
+
+/u01/app/oracle/product/10.2.0/db_1/root.sh -silent
+
+# OPTIONAL: clean up
+# rm -rf /home/oracle/rdbms/10g/linux/x86_64/

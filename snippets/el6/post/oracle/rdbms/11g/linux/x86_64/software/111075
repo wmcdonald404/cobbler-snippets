@@ -1,0 +1,32 @@
+# el5/post/oracle/rdbms/11g/linux/x86_64/software/111075
+#
+# Apply Oracle Patch 11.1.0.7.5 (p9952228_111070_Linux-x86-64.zip) 
+# to  RDBMS Software to 11.1.0.7
+# 
+# Requires:
+# el5/post/oracle/common/11g/linux/x86_64/common
+# el5/post/oracle/rdbms/11g/linux/x86_64/software/11106
+# el5/post/oracle/rdbms/11g/linux/x86_64/software/11107
+
+# Create the directory layout
+mkdir -p /home/oracle/rdbms/11g/linux/x86_64/{media,response,install}
+
+# Download OPatch 11.1.0.9.6 (p6880880), a pre-req for 11.1.0.7.5 (p9952228), remove
+# the old OPatch and unzip 11.1.0.9.6.
+wget -q http://buildhost/media/oracle/rdbms/11g/linux/x86_64/p6880880_111000_Linux-x86-64.zip -P /home/oracle/rdbms/11g/linux/x86_64/media
+rm -rf /u01/app/oracle/product/11.1.0/db_1/OPatch
+su - oracle -c "unzip -q /home/oracle/rdbms/11g/linux/x86_64/media/p6880880_111000_Linux-x86-64.zip -d /u01/app/oracle/product/11.1.0/db_1/"
+
+# Setup OCM to allow OPatch to run in silent mode
+su - oracle -c "/u01/app/oracle/product/11.1.0/db_1/ccr/bin/setupCCR -s -d"
+
+# Apply 11.1.0.7.5 (p9952228)
+wget -q http://buildhost/media/oracle/rdbms/11g/linux/x86_64/p9952228_111070_Linux-x86-64.zip -P /home/oracle/rdbms/11g/linux/x86_64/media
+unzip -q /home/oracle/rdbms/11g/linux/x86_64/media/p9952228_111070_Linux-x86-64.zip -d /home/oracle/rdbms/11g/linux/x86_64/install
+
+# Change ownership and then run OPatch silently to install the patch
+chown -R oracle:oinstall /home/oracle/rdbms
+su - oracle -c "ORACLE_HOME=/u01/app/oracle/product/11.1.0/db_1 /u01/app/oracle/product/11.1.0/db_1/OPatch/opatch apply -silent /home/oracle/rdbms/11g/linux/x86_64/install/9952228"
+
+# OPTIONAL: clean up
+# rm -rf /home/oracle/db 

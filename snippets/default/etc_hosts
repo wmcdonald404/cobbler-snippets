@@ -1,0 +1,5 @@
+# default/etc_hosts
+# Configure a static mapping for the buildhost's IP address on each newly
+# installed client
+
+echo '192.168.242.102	buildhost' >> /etc/hosts

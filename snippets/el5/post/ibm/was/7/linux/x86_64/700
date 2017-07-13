@@ -1,0 +1,35 @@
+# el5/post/ibm/was/7/linux/x86_64/700
+# Install IBM WebSphere 7.0.0
+# Requires:
+# el5/post/ibm/was/common/linux/noarch/base
+
+# Create the directory layout, grab the install media and unpack
+mkdir -p /home/ibm/was/7/linux/x86_64/{media,response,install}
+wget -q http://buildhost/media/ibm/was/7/linux/x86_64/C1G35ML.tar.gz -P  /home/ibm/was/7/linux/x86_64/media
+tar -C /home/ibm/was/7/linux/x86_64/install -xzf /home/ibm/was/7/linux/x86_64/media/C1G35ML.tar.gz
+
+# Create the response file
+cat > /home/ibm/was/7/linux/x86_64/response/700_was.rsp <<EOF
+-OPT silentInstallLicenseAcceptance="true"
+-OPT disableOSPrereqChecking="true"
+-OPT disableNonBlockingPrereqChecking="true"
+-OPT installType="installNew"
+-OPT feature="noFeature"
+-OPT installLocation="/opt/ibm/WebSphere/AppServer"
+-OPT profileType="none"
+-OPT traceLevel=INFO
+EOF
+
+# Temporarily switch redhat-release
+cp -f /etc/redhat-release /etc/redhat-release.centos54
+cat > /etc/redhat-release.rhel54 <<EOF
+Red Hat Enterprise Linux Server release 5.4 (Tikanga)
+EOF
+cp -f /etc/redhat-release.rhel54 /etc/redhat-release 
+
+# Install silently
+/home/ibm/was/7/linux/x86_64/install/WAS/install -silent -options /home/ibm/was/7/linux/x86_64/response/700_was.rsp
+
+
+# Switch redhat-release back
+cp -f /etc/redhat-release.centos54 /etc/redhat-release 
